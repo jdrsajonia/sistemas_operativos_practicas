@@ -6,7 +6,9 @@ Para compilar el proyecto, primero hay que instalar las librerias libssl-dev y l
 
 Si no queremos hacer esto, simplemente cambia los permisos de launch.sh para que sea un ejecutable con "chmod 777 launch.sh" y ejecutalo con
 > bash launch.sh
+
 ó
+
 > ./launch.sh
 
 Esto generará el archivo binario a ejecutar.
