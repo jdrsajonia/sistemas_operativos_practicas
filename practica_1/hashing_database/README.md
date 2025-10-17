@@ -1,16 +1,24 @@
-Este directorio contiene varios codigos.
-El que nos interesa ejecutar por el momento es hash_database.c, el cual usa las funciones de hashing_functions.c para hashear los registros del csv apuntado
+En este documento solo nos interesará ejecutar dos programas:
 
-Para compilar el proyecto, primero hay que instalar las librerias libssl-dev y libxxhash-dev y luego hacer uso del siguiente comando:
-> gcc hashing_functions.c hash_database.c -o hash_database -lssl -lcrypto -lxxhash 
+1) hash_database.c --> hasheo de la base de datos (se crea un archivo binario de la base de datos indexada) 
+2) find_record.c   --> consulta por ID de un registro de la base de datos  
 
-Si no queremos hacer esto, simplemente cambia los permisos de launch.sh para que sea un ejecutable con "chmod 777 launch.sh" y ejecutalo con
-> bash launch.sh
 
-ó
+Para compilar estos archivos, basta con ejecutar el siguiente comando dentro de este mismo directorio:
 
-> ./launch.sh
+> make
 
-Esto generará el archivo binario a ejecutar.
+Esto generará dos archivos ejecutables. "hashing_table" y "find"
 
-Después hago un readme mas bonito
+Para generar la base de datos hasheada, se tiene que ejecutar hashing_table de la siguiente forma:
+> ./hashing_table
+
+Este proceso de hashing puede durar aproximadamente medio minuto.
+
+Posteriormente con la base de datos ya hasheada, podemos empezar a buscar sobre ella con el siguiente comando:
+
+> ./find
+
+Esto abrirá el programa que permite consultar registros de la base de datos a traves de un ID, devolviendo información asociada del campo.
+
+
