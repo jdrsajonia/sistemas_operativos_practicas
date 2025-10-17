@@ -74,7 +74,7 @@ int main(){
     long current_offset=0;
     hash_table_struct temp_hash_bucket={.id=-1, .first_offset=-1};
 
-    printf("\nHASHEANDO BASE DE DATOS EN database_indexed.dat\n");
+    printf("\nHASHEANDO BASE DE DATOS EN database_indexed.dat\n(si esto tarda muy poco en ejecutarse, verificar la base de datos csv)\n");
     while (fgets(row, sizeof(row), csv_file)){
     
         row[strcspn(row, "\n")] = '\0';

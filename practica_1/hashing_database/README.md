@@ -17,7 +17,7 @@ Este proceso de hashing puede durar aproximadamente medio minuto.
 
 Posteriormente con la base de datos ya hasheada, podemos empezar a buscar sobre ella con el siguiente comando:
 
-> ./find
+> ./find_record
 
 Esto abrirá el programa que permite consultar registros de la base de datos a traves de un ID, devolviendo información asociada del campo.
 
