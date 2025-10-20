@@ -37,8 +37,7 @@ Antes de compilar y ejecutar el proyecto, asegúrate de tener:
   (en Debian, puedes instalarlas con:  
   ```bash
   sudo apt install libssl-dev libxxhash-dev
-  ```)
-
+  
 ---
 
 ## 📥 Preparación del dataset
