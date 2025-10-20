@@ -74,16 +74,16 @@ int main(){
     long current_offset=0;
     hash_table_struct temp_hash_bucket={.id=-1, .first_offset=-1};
 
-    printf("\nHASHEANDO BASE DE DATOS EN database_indexed.dat\n(si esto tarda muy poco en ejecutarse, verificar la base de datos csv)\n");
+    printf("[HASHING DATABASE] ...\n");
+    fflush(stdout);
+
     while (fgets(row, sizeof(row), csv_file)){
     
         row[strcspn(row, "\n")] = '\0';
         // printf("%s\n", row);
         id_hashed=get_id_hashed(row, 0);
         bookrecord record=map_csv_record_to_bin(row);
-
-        // printf("record.next_offset antes de escribir: %ld\n", record.next_offset);
-
+        
 
         fseek(database_indexed_file,0, SEEK_END); // poner puntero del archivo desde el final
         current_offset=ftell(database_indexed_file);
@@ -113,8 +113,6 @@ int main(){
                 
                 fseek(database_indexed_file, prev_offset, SEEK_SET);
                 fread(&temp_record, sizeof(bookrecord), 1, database_indexed_file);
-
-                // printf("next_offset = %ld\n", temp_record.next_offset);
                 
                 if (temp_record.next_offset==-1){
                     temp_record.next_offset=current_offset;
@@ -132,32 +130,31 @@ int main(){
     fclose(hash_table_file);
     fclose(database_indexed_file);
 
-    printf("\nOK\n");
-
+    printf("\nDONE\n");
     return 0;
 }
 
 
 
 int get_id_hashed(char *row, int index_id){
-    int column=0;
-    int id_hashed=-1;
+    int column = 0;
+    int id_hashed = -1;
 
     // Crear copia del row para no modificar el original
-    char *temp=strdup(row);  // reserva memoria y copia row AQUI TUVE QUE HACER COPIA DE LA FILA porque al hacer strtok mas adelante, la modifica globalmente
-    if (temp==NULL) {
+    char *temp = strdup(row);  // reserva memoria y copia row AQUI TUVE QUE HACER COPIA DE LA FILA porque al hacer strtok mas adelante, la modifica globalmente
+    if (temp == NULL) {
         perror("Error al copiar la cadena");
         exit(EXIT_FAILURE);
     }
 
-    char *token=strtok(temp, ",");
-    while (token!=NULL) {
-        if (column==index_id) {
-            id_hashed=hash_xxh64(token, TABLE_SIZE, 0);
+    char *token = strtok(temp, ",");
+    while (token != NULL) {
+        if (column == index_id) {
+            id_hashed = hash_xxh64(token, TABLE_SIZE, 0);
             break;
         }
         column++;
-        token=strtok(NULL, ",");
+        token = strtok(NULL, ",");
     }
 
     free(temp);  // liberar memoria

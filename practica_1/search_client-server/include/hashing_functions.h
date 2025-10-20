@@ -1,5 +1,5 @@
 #ifndef HASHING_FUNCTIONS_H
-#define HASING_FUNCTIONS_H
+#define HASHING_FUNCTIONS_H
 
 #include <openssl/sha.h>
 #include <xxhash.h>

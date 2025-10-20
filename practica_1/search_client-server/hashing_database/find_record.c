@@ -1,9 +1,8 @@
-
-// este codigo si fue hecho con IA en su totalidad, por favor revisar o implementar una versión propia para que sea mas guapetón joder!
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "hashing_functions.h" // asegúrate de incluir tu hash_xxh64
+#include "hashing_functions.h" 
+
 #define TABLE_SIZE 100000
 
 typedef struct {
@@ -36,20 +35,21 @@ typedef struct {
     long first_offset;
 } hash_table_struct;
 
-int main() {
-    char id_input[20];
-    printf("Ingrese el ID del libro: ");
-    fgets(id_input, sizeof(id_input), stdin);
-    id_input[strcspn(id_input, "\n")] = '\0'; // quitar salto de línea
 
-    int id_hashed = hash_xxh64(id_input, TABLE_SIZE, 0);
+char *find_record(const char *isbn) {
+    static char not_found[] = "No match found\n";
 
-    FILE *hash_file = fopen("hash_table.dat", "rb");
-    FILE *data_file = fopen("database_indexed.dat", "rb");
+    int id_hashed = hash_xxh64(isbn, TABLE_SIZE, 0);
+
+    FILE *hash_file = fopen("hashing_database/hash_table.dat", "rb");
+    FILE *data_file = fopen("hashing_database/database_indexed.dat", "rb");
+
 
     if (!hash_file || !data_file) {
         perror("Error al abrir archivos");
-        return 1;
+        if (hash_file) fclose(hash_file);
+        if (data_file) fclose(data_file);
+        return not_found;
     }
 
     hash_table_struct bucket;
@@ -57,10 +57,9 @@ int main() {
     fread(&bucket, sizeof(hash_table_struct), 1, hash_file);
 
     if (bucket.first_offset == -1) {
-        printf("❌ No se encontró ningún registro con ese ID.\n");
         fclose(hash_file);
         fclose(data_file);
-        return 0;
+        return not_found;
     }
 
     // recorrer lista enlazada de colisiones
@@ -70,27 +69,45 @@ int main() {
         fseek(data_file, offset, SEEK_SET);
         fread(&record, sizeof(bookrecord), 1, data_file);
 
-        if (strcmp(record.id, id_input) == 0) {
-            printf("\n✅ Registro encontrado:\n");
-            printf("ID: %s\n", record.id);
-            printf("Nombre: %s\n", record.name);
-            printf("Autor: %s\n", record.authors);
-            printf("Editorial: %s\n", record.publisher);
-            printf("Año: %s\n", record.publish_year);
-            printf("Descripción: %s\n", record.description);
-            printf("Páginas: %s\n", record.pages_number);
-            printf("Rating: %s\n", record.rating);
+        if (strcmp(record.id, isbn) == 0) {
+            // asignamos memoria dinámica para retornar los datos
+            char *result = malloc(1024);
+            if (!result) {
+                perror("Error al asignar memoria");
+                fclose(hash_file);
+                fclose(data_file);
+                return not_found;
+            }
+
+            snprintf(result, 1024,
+                "\n\nRegistro encontrado:\n\n"
+                "ID: %s\n"
+                "Nombre: %s\n"
+                "Autor: %s\n"
+                "Editorial: %s\n"
+                "Año: %s\n"
+                "Descripción: %s\n"
+                "Páginas: %s\n"
+                "Rating: %s\n",
+                record.id,
+                record.name,
+                record.authors,
+                record.publisher,
+                record.publish_year,
+                record.description,
+                record.pages_number,
+                record.rating
+            );
+
             fclose(hash_file);
             fclose(data_file);
-            return 0;
+            return result;
         }
 
         offset = record.next_offset;
     }
 
-    printf("❌ No se encontró ningún registro con ese ID.\n");
-
     fclose(hash_file);
     fclose(data_file);
-    return 0;
+    return not_found;
 }
