@@ -10,7 +10,7 @@ INCLUDE_DIR = include
 
 # --- BINARIOS ---
 SERVER = server
-CLIENT = cli
+CLIENT = client
 HASHDB = $(HASH_DIR)/hashdb
 
 # --- FUENTES ---
