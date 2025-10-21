@@ -2,6 +2,8 @@
 
 Este proyecto implementa un sistema **cliente-servidor en C** para realizar consultas sobre una **base de datos de libros** previamente indexada mediante un algoritmo de *hashing*.
 
+* Indíce:
+     - [Estructura del proyecto](#🧩estructura-del-proyecto)
 ---
 
 ## 🧩 Estructura del proyecto
