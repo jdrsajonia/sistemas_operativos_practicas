@@ -2,10 +2,10 @@
 
 Este proyecto implementa un sistema **cliente-servidor en C** para realizar consultas sobre una **base de datos de libros** previamente indexada mediante un algoritmo de *hashing*.
 
-* Indíce:
+* Indíce de contenidos:
      - [Estructura del proyecto](#jigsaw-estructura-del-proyecto)
      - [Requisitos previos](#gear-requisitos-previos)
-     - [Preparación del dataset](#preparacion-del-dataset)
+     - [Preparación del dataset](#inbox_tray-preparación-del-dataset)
 
 ---
 
@@ -60,6 +60,8 @@ hashing_database/databases/books_unificado2.csv
 
 Si el archivo no está presente, el sistema no podrá generar ni consultar la base de datos indexada.
 
+[Volver al principio](#mag-search-client-server)
+
 ---
 
 ## 🛠️ Compilación del proyecto
@@ -71,6 +73,8 @@ make
 ```
 
 Esto compilará todos los módulos y generará los binarios necesarios (`server`, `client`, y `hashdb`).
+
+[Volver al principio](#mag-search-client-server)
 
 ---
 
@@ -89,6 +93,8 @@ Esto procesará `books_unificado2.csv` y generará:
 
 ---
 
+[Volver al principio](#mag-search-client-server)
+
 ## 🖥️ Ejecución del sistema cliente-servidor
 
 1. **Ejecuta el servidor** (mantendrá las conexiones activas):
@@ -103,6 +109,8 @@ Esto procesará `books_unificado2.csv` y generará:
 
 3. Desde el cliente, podrás ingresar un ISBN de libro para consultar su información indexada.
 
+[Volver al principio](#mag-search-client-server)
+
 ---
 
 ## 🧾 Notas importantes
@@ -114,6 +122,8 @@ Esto procesará `books_unificado2.csv` y generará:
   ```bash
   make rebuild
   ```
+
+[Volver al principio](#mag-search-client-server)
 
 ---
 
@@ -131,3 +141,5 @@ Por:
   dagraciap@unal.edu.co
 - Felipe Rojas Marin 
   ferojasm@unal.edu.co
+
+[Volver al principio](#mag-search-client-server)
