@@ -3,7 +3,7 @@
 *.out
 *.exe
 server
-cli
+client
 search_client-server/hashing_database/hashdb
 
 # Ignorar archivos grandes de bases de datos
