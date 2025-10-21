@@ -115,6 +115,7 @@ Proyecto desarrollado en C como implementación práctica de:
 - Algoritmos de **hashing**
 - **Sistemas cliente-servidor TCP**
 - Manejo de **archivos binarios** e indexación
+
 Por:
 - Juan Diego Rozo Álvarez
   jurozoa@unal.edu.co
