@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 #include "hashing_functions.h"
 
 #define TABLE_SIZE 100000
@@ -21,7 +23,7 @@ typedef struct {
     char rating_dist_total[20];
     char rating_dist5[20];
     char publish_day[20];
-    char name[50];
+    char name[100];
     char publish_month[20];
     char rating_dist4[20];
     char rating_dist1[20];
@@ -48,6 +50,61 @@ typedef struct{
     long first_offset;
 } hash_table_struct;
 
+
+/**
+ * @brief Analiza el siguiente campo de una fila CSV, manejando correctamente los campos entre comillas
+ * 
+ * @param input Puntero a la posición actual en la fila CSV
+ * @param field Buffer para almacenar el campo analizado
+ * @param field_size Tamaño del buffer del campo
+ * @return char* Puntero al inicio del siguiente campo, o NULL si está al final de la fila
+ */
+char* get_next_csv_field(char* input, char* field, size_t field_size) {
+    if (!input || !*input) return NULL;  // End of input
+    
+    // Skip leading whitespace
+    while (*input == ' ') input++;
+    
+    field[0] = '\0';
+    size_t pos = 0;
+    bool in_quotes = false;
+    
+    // Handle quoted fields
+    if (*input == '"') {
+        in_quotes = true;
+        input++;  // Skip the opening quote
+        
+        while (*input && pos < field_size - 1) {
+            if (*input == '"') {
+                if (*(input + 1) == '"') {  // Double quote = escaped quote
+                    if (pos < field_size - 1) {
+                        field[pos++] = '"';
+                    }
+                    input += 2;
+                } else {  // End of quoted field
+                    input++;
+                    break;
+                }
+            } else {
+                field[pos++] = *input++;
+            }
+        }
+        
+        // Skip to the next delimiter
+        while (*input && *input != ',') input++;
+        
+    } else {
+        // Unquoted field - read until comma or end
+        while (*input && *input != ',' && pos < field_size - 1) {
+            field[pos++] = *input++;
+        }
+    }
+    
+    field[pos] = '\0';  // Null terminate the field
+    
+    // Move past the delimiter if present
+    return *input ? input + 1 : NULL;
+}
 
 int get_id_hashed(char *line, int index_id);
 void init_hash_table(int size);
@@ -170,26 +227,26 @@ int main(){
 int get_id_hashed(char *row, int index_id){
     int column = 0;
     int id_hashed = -1;
-
-    // Crear copia del row para no modificar el original
-    char *temp = strdup(row);  // reserva memoria y copia row AQUI TUVE QUE HACER COPIA DE LA FILA porque al hacer strtok mas adelante, la modifica globalmente
-    if (temp == NULL) { // Verificar si la copia fue exitosa
+    char field[MAX_STR];
+    
+    // Create a copy of the row to avoid modifying the original
+    char *temp = strdup(row);
+    if (temp == NULL) {
         perror("Error al copiar la cadena");
         exit(EXIT_FAILURE);
     }
-
     
-    char *token = strtok(temp, ",");
-    while (token != NULL) {
+    char *current_pos = temp;
+    while (current_pos != NULL) {
+        current_pos = get_next_csv_field(current_pos, field, sizeof(field));
         if (column == index_id) {
-            id_hashed = hash_xxh64(token, TABLE_SIZE, 0);
+            id_hashed = hash_xxh64(field, TABLE_SIZE, 0);
             break;
         }
         column++;
-        token = strtok(NULL, ",");
     }
-
-    free(temp);  // liberar memoria
+    
+    free(temp);
     return id_hashed;
 }
 
@@ -243,50 +300,46 @@ void init_hash_table(int size){
  * 
  */
 bookrecord map_csv_record_to_bin(const char *row) {
+    // Inicializar estructura de registro de libro
     bookrecord record;
     memset(&record, 0, sizeof(record));
-    record.next_offset=-1;
-
-    // printf("token: %s\n", row);
+    record.next_offset = -1;
 
     char temp[MAX_STR + MAX_DESC];
     strcpy(temp, row);
-
-    char *token = strtok(temp, ",");
-    int field = 0;
-
-    while (token != NULL) {
-        switch (field) {
-            case 0:  strncpy(record.id, token, sizeof(record.id)); break;
-            case 1:  strncpy(record.rating_dist_total, token, sizeof(record.rating_dist_total)); break;
-            case 2:  strncpy(record.rating_dist5, token, sizeof(record.rating_dist5)); break;
-            case 3:  strncpy(record.publish_day, token, sizeof(record.publish_day)); break;
-            case 4:  strncpy(record.name, token, sizeof(record.name)); break;
-            case 5:  strncpy(record.publish_month, token, sizeof(record.publish_month)); break;
-            case 6:  strncpy(record.rating_dist4, token, sizeof(record.rating_dist4)); break;
-            case 7:  strncpy(record.rating_dist1, token, sizeof(record.rating_dist1)); break;
-            case 8:  strncpy(record.rating_dist2, token, sizeof(record.rating_dist2)); break;
-            case 9:  strncpy(record.counts_of_review, token, sizeof(record.counts_of_review)); break;
-            case 10: strncpy(record.authors, token, sizeof(record.authors)); break;
-            case 11: strncpy(record.rating_dist3, token, sizeof(record.rating_dist3)); break;
-            case 12: strncpy(record.publish_year, token, sizeof(record.publish_year)); break;
-            case 13: strncpy(record.source_file, token, sizeof(record.source_file)); break;
-            case 14: strncpy(record.publisher, token, sizeof(record.publisher)); break;
-            case 15: strncpy(record.language, token, sizeof(record.language)); break;
-            case 16: strncpy(record.isbn, token, sizeof(record.isbn)); break;
-            case 17: strncpy(record.description, token, sizeof(record.description)); break;
-            case 18: strncpy(record.rating, token, sizeof(record.rating)); break;
-            case 19: strncpy(record.pages_number, token, sizeof(record.pages_number)); break;
-            case 20: strncpy(record.count_of_text_reviews, token, sizeof(record.count_of_text_reviews)); break;
+    
+    char field_value[MAX_STR + MAX_DESC];
+    char *current_pos = temp;
+    int field_num = 0;
+    
+    while (current_pos != NULL && field_num <= 20) {
+        current_pos = get_next_csv_field(current_pos, field_value, sizeof(field_value));
+        
+        switch (field_num) {
+            case 0:  strncpy(record.id, field_value, sizeof(record.id) - 1); break;
+            case 1:  strncpy(record.rating_dist_total, field_value, sizeof(record.rating_dist_total) - 1); break;
+            case 2:  strncpy(record.rating_dist5, field_value, sizeof(record.rating_dist5) - 1); break;
+            case 3:  strncpy(record.publish_day, field_value, sizeof(record.publish_day) - 1); break;
+            case 4:  strncpy(record.name, field_value, sizeof(record.name) - 1); break;
+            case 5:  strncpy(record.publish_month, field_value, sizeof(record.publish_month) - 1); break;
+            case 6:  strncpy(record.rating_dist4, field_value, sizeof(record.rating_dist4) - 1); break;
+            case 7:  strncpy(record.rating_dist1, field_value, sizeof(record.rating_dist1) - 1); break;
+            case 8:  strncpy(record.rating_dist2, field_value, sizeof(record.rating_dist2) - 1); break;
+            case 9:  strncpy(record.counts_of_review, field_value, sizeof(record.counts_of_review) - 1); break;
+            case 10: strncpy(record.authors, field_value, sizeof(record.authors) - 1); break;
+            case 11: strncpy(record.rating_dist3, field_value, sizeof(record.rating_dist3) - 1); break;
+            case 12: strncpy(record.publish_year, field_value, sizeof(record.publish_year) - 1); break;
+            case 13: strncpy(record.source_file, field_value, sizeof(record.source_file) - 1); break;
+            case 14: strncpy(record.publisher, field_value, sizeof(record.publisher) - 1); break;
+            case 15: strncpy(record.language, field_value, sizeof(record.language) - 1); break;
+            case 16: strncpy(record.isbn, field_value, sizeof(record.isbn) - 1); break;
+            case 17: strncpy(record.description, field_value, sizeof(record.description) - 1); break;
+            case 18: strncpy(record.rating, field_value, sizeof(record.rating) - 1); break;
+            case 19: strncpy(record.pages_number, field_value, sizeof(record.pages_number) - 1); break;
+            case 20: strncpy(record.count_of_text_reviews, field_value, sizeof(record.count_of_text_reviews) - 1); break;
         }
-        // printf("token: %s\n", token);
-        field++;
-        // printf("token: %s\n", row);
-        token = strtok(NULL, ",");
+        field_num++;
     }
-    // printf("\n\n");
 
     return record;
 }
-
-

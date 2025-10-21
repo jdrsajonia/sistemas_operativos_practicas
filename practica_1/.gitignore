@@ -6,6 +6,9 @@ server
 client
 search_client-server/hashing_database/hashdb
 
+#Ignorar archivos de configuración local
+/.vscode/  
+
 # Ignorar archivos grandes de bases de datos
 search_client-server/hashing_database/database_indexed.dat
 search_client-server/hashing_database/hash_table.dat

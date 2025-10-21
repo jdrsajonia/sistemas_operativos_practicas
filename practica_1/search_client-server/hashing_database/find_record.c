@@ -19,7 +19,7 @@ typedef struct {
     char rating_dist_total[20];
     char rating_dist5[20];
     char publish_day[20];
-    char name[50];
+    char name[100];
     char publish_month[20];
     char rating_dist4[20];
     char rating_dist1[20];
