@@ -3,12 +3,12 @@
 *.out
 *.exe
 server
-client
+cli
 
 # Ignorar archivos grandes de bases de datos
-hashing_database/database_indexed.dat
-hashing_database/hash_table.dat
-hashing_database/databases
+search_client-server/hashing_database/database_indexed.dat
+search_client-server/hashing_database/hash_table.dat
+search_client-server/hashing_database/databases
 # Ignorar carpetas temporales
 *.zip
 *.tar
