@@ -1,3 +1,4 @@
+#define _POSIX_C_SOURCE 199309L
 #include <sys/socket.h> //para los sockets
 #include <netinet/in.h>
 #include <stdio.h>
@@ -5,6 +6,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
+#include <time.h>
 
 #include "find_record.h"
 
@@ -76,7 +78,7 @@ int main(){
 
         printf("[SERVIDOR] Cliente conectado\n");
 
-        // while para atender al cliente hasta que se cierre la conexion
+        //While que corre indefinidamente para recibir mensajes del cliente
         while(1){
             int bytes=recv(client_fd, buffer, sizeof(buffer)-1, 0);
             if (bytes<=0){
@@ -89,9 +91,19 @@ int main(){
             printf("[CLIENTE] %s\n",buffer);
 
 
-            //aqui llamar la funcion que consulta la base de datos, recuperar la info y enviarla en send
-            char *server_response=find_record(buffer);
-            send(client_fd, server_response,strlen(server_response),0);
+            //Aqui llamamos la funcion que consulta la base de datos, recuperar la info y enviarla en send
+
+            // Cuenta el tiempo de busqueda
+            struct timespec tstart, tend;
+            clock_gettime(CLOCK_MONOTONIC, &tstart);
+            char *server_response = find_record(buffer);
+            clock_gettime(CLOCK_MONOTONIC, &tend);
+
+            long elapsed_ns = (tend.tv_sec - tstart.tv_sec) * 1000000000L + (tend.tv_nsec - tstart.tv_nsec);
+            double elapsed_ms = elapsed_ns / 1e6;
+            printf("[TIMING] Busqueda de '%s' tomo %.3f ms (%ld ns)\n", buffer, elapsed_ms, elapsed_ns);
+
+            send(client_fd, server_response, strlen(server_response), 0);
         }
     }
 
