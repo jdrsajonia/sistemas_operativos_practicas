@@ -211,7 +211,7 @@ int main(){
  * campo a un entero y devuelve un valor hasheado derivado del entero parseado,
  * adecuado para usarse como índice en la base de datos hash.
  *
- * Devuelve un indice hasheado no negativo en caso de éxito.
+ * @return Un indice hasheado no negativo en caso de éxito.
  *   Un valor negativo en caso de error (por ejemplo: @row es NULL, @index_id
  *   está fuera de los límites de la cadena, o la subcadena en @index_id no puede
  *   convertirse a un entero válido).
