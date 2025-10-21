@@ -6,6 +6,11 @@ Este proyecto implementa un sistema **cliente-servidor en C** para realizar cons
      - [Estructura del proyecto](#jigsaw-estructura-del-proyecto)
      - [Requisitos previos](#gear-requisitos-previos)
      - [Preparación del dataset](#inbox_tray-preparación-del-dataset)
+     - [Compilación del proyecto](#hammer_and_wrench-compilación-del-proyecto)
+     - [Hasheo de la base de datos](#abacus-hasheo-de-la-base-de-datos)
+     - [Ejecución del sistema](#desktop_computer-ejecución-del-sistema-cliente-servidor)
+     - [Notas importantes](#spiral_notepad-notas-importantes)
+     - [Créditos](#-créditos)
 
 ---
 
@@ -40,9 +45,15 @@ Antes de compilar y ejecutar el proyecto, asegúrate de tener:
 - Sistema operativo **Linux** o compatible con GCC  
 - **gcc** y **make** instalados  
 - Librerías: `libssl`, `libcrypto` y `libxxhash`  
-  (en Debian, puedes instalarlas con:  
+  en Debian, puedes instalarlas con:  
   ```bash
   sudo apt install libssl-dev libxxhash-dev
+  ```
+  en Arch, puedes usar el comando:
+  ```bash
+  yay -S openssl xxhash
+
+  ```
 
 [Volver al principio](#mag-search-client-server)
   
@@ -52,6 +63,7 @@ Antes de compilar y ejecutar el proyecto, asegúrate de tener:
 
 ⚠️ **IMPORTANTE:**  
 Debido a limitaciones de GitHub, el archivo `books_unificado2.csv` (≈1 GB) **no se incluye** en el repositorio.
+> Usando git LFS u otros metodos podremos descargar el archivo al clonar el repositorio.
 
 Debes colocar manualmente el archivo original dentro de:
 ```
@@ -64,7 +76,7 @@ Si el archivo no está presente, el sistema no podrá generar ni consultar la ba
 
 ---
 
-## 🛠️ Compilación del proyecto
+## :hammer_and_wrench: Compilación del proyecto
 
 Desde la carpeta raíz del proyecto (`search_client-server`):
 
@@ -78,7 +90,7 @@ Esto compilará todos los módulos y generará los binarios necesarios (`server`
 
 ---
 
-## 🧮 Hasheo de la base de datos
+## :abacus: Hasheo de la base de datos
 
 Para generar la base de datos indexada (solo se hace una vez o cuando cambie el CSV):
 
@@ -91,11 +103,13 @@ Esto procesará `books_unificado2.csv` y generará:
 - `database_indexed.dat`
 - `hash_table.dat`
 
+En un portatíl con un procesador Ryzen 5 2500U se demora en promedio ≈1m 30s para finalizar el proceso de hashing.
+
 ---
 
 [Volver al principio](#mag-search-client-server)
 
-## 🖥️ Ejecución del sistema cliente-servidor
+## :desktop_computer: Ejecución del sistema cliente-servidor
 
 1. **Ejecuta el servidor** (mantendrá las conexiones activas):
    ```bash
@@ -113,7 +127,7 @@ Esto procesará `books_unificado2.csv` y generará:
 
 ---
 
-## 🧾 Notas importantes
+## :spiral_notepad: Notas importantes
 
 - Algunos registros del archivo CSV pueden estar **ligeramente desorganizados** debido a **comas mal formateadas** en el dataset original.  
   Sin embargo, la **información relevante (título, autor, año, descripción, etc.) se mantiene íntegra y accesible**.
