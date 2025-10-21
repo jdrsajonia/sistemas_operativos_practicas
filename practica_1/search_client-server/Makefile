@@ -11,6 +11,7 @@ INCLUDE_DIR = include
 # --- BINARIOS ---
 SERVER = server
 CLIENT = cli
+HASHDB = $(HASH_DIR)/hashdb
 
 # --- FUENTES ---
 SERVER_SRC = $(SRC_DIR)/server.c $(HASH_DIR)/find_record.c $(HASH_DIR)/hashing_functions.c
@@ -18,7 +19,7 @@ CLIENT_SRC = $(SRC_DIR)/client.c
 HASH_SRC = $(HASH_DIR)/hash_database.c $(HASH_DIR)/hashing_functions.c
 
 # --- REGLAS ---
-all: $(SERVER) $(CLIENT)
+all: $(SERVER) $(CLIENT) $(HASHDB)
 
 $(SERVER): $(SERVER_SRC)
 	$(CC) $(CFLAGS) $(SERVER_SRC) -o $(SERVER) $(LIBS)
@@ -26,8 +27,16 @@ $(SERVER): $(SERVER_SRC)
 $(CLIENT): $(CLIENT_SRC)
 	$(CC) $(CFLAGS) $(CLIENT_SRC) -o $(CLIENT)
 
+$(HASHDB): $(HASH_SRC)
+	$(CC) $(CFLAGS) $(HASH_SRC) -o $(HASHDB) $(LIBS)
+
 hashdb: $(HASH_SRC)
-	$(CC) $(CFLAGS) $(HASH_SRC) -o hashdb $(LIBS)
+	$(CC) $(CFLAGS) $(HASH_SRC) -o $(HASHDB) $(LIBS)
+
+clean_hash:
+	rm -f $(HASHDB)
 
 clean:
-	rm -f $(SERVER) $(CLIENT) hashdb
+	rm -f $(SERVER) $(CLIENT) $(HASHDB)
+
+rebuild: clean all
