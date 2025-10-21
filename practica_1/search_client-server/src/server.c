@@ -1,119 +1,113 @@
 #define _POSIX_C_SOURCE 199309L
+#include <sys/socket.h> //para los sockets
+#include <netinet/in.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
 #include <time.h>
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <errno.h>
 
 #include "find_record.h"
 
-#define SERVER_FIFO "/tmp/book_server_fifo"
-#define CLIENT_FIFO_TEMPLATE "/tmp/book_client_%d_fifo"
-#define MAX_BUFFER 1024
+#define PORT 8080
+#define BACKLOG 10 //numero de conexiones permitidas en cola
 
 
 
 
-// Estructura para la respuesta del servidor
-typedef struct {
-    char response[MAX_BUFFER];
-    double search_time_ms;
-} ServerResponse;
+int server_fd;
 
-int server_fifo_fd;
-char *server_fifo = SERVER_FIFO;
-
-void handle_sigint(int sig) {
-    printf("\n[SERVIDOR] Cerrando pipes y saliendo...\n");
-    close(server_fifo_fd);
-    unlink(server_fifo);  // Remove the FIFO
+void handle_sigint(int sig){
+    printf("\n[SERVIDOR] Cerrando socket y saliendo...");
+    close(server_fd);
     exit(0);
 }
 
-int main() {
-    char buffer[MAX_BUFFER];
-    ServerResponse resp;
-    int client_pid, bytes_read;
-    char client_fifo[256];
+int main(){
+
+    struct sockaddr_in server, client;
+    signal(SIGINT, handle_sigint); // ctrl + c
+    char buffer[1025];
+
+
+    // Creación del socket
+    // ---------------------------------------------
+    server_fd=socket(AF_INET, SOCK_STREAM, 0);
+    if(server_fd==-1){
+        perror("Error al crear el socket");
+        exit(-1);
+    } 
     
-    // Set up signal handler
-    signal(SIGINT, handle_sigint);
-    
-    // Create the server's FIFO if it doesn't exist
-    if (mkfifo(server_fifo, 0666) == -1 && errno != EEXIST) {
-        perror("[SERVIDOR] Error al crear el FIFO del servidor");
+    // Manejo de cierre inesperado del socket
+    int opt=2;
+    setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+
+    server.sin_family=AF_INET;
+    server.sin_port=htons(PORT); 
+    server.sin_addr.s_addr=INADDR_ANY; 
+    memset(&(server.sin_zero), 0, 8);
+    // ---------------------------------------------
+
+
+    // Enlace del socket usando bind 
+    int r = bind(server_fd, (struct sockaddr *)&server, sizeof(struct sockaddr)); 
+    if (r==-1){
+        perror("Error al hacer el bind");
+        close(server_fd);
         exit(-1);
     }
-    
-    printf("[SERVIDOR] Iniciando servicio...\n");
-    
-    // Open the server's FIFO for reading
-    server_fifo_fd = open(server_fifo, O_RDONLY);
-    if (server_fifo_fd == -1) {
-        perror("[SERVIDOR] Error al abrir el FIFO del servidor");
-        unlink(server_fifo);
+
+    // Escuchar conexiones entrantes
+    r=listen(server_fd,BACKLOG);
+    if (r==-1){
+        perror("Error al hacer Listen");
+        close(server_fd);
         exit(-1);
     }
-    
-    // Keep the FIFO open for writing to prevent EOF
-    int dummy_fd = open(server_fifo, O_WRONLY);
-    
-    printf("[SERVIDOR] Esperando consultas...\n");
-    
-    while (1) {
-        // Read request format: <pid>:<isbn>
-        bytes_read = read(server_fifo_fd, buffer, MAX_BUFFER);
-        if (bytes_read <= 0) continue;
-        
-        buffer[bytes_read] = '\0';
-        
-        // Parse client PID and ISBN
-        char *pid_str = strtok(buffer, ":");
-        char *isbn = strtok(NULL, ":");
-        if (!pid_str || !isbn) continue;
-        
-        client_pid = atoi(pid_str);
-        printf("[SERVIDOR] Consulta recibida del cliente %d: %s\n", client_pid, isbn);
-        
-        // Format client FIFO path
-        snprintf(client_fifo, sizeof(client_fifo), CLIENT_FIFO_TEMPLATE, client_pid);
-        
-        // Open client FIFO for response
-        int client_fd = open(client_fifo, O_WRONLY);
-        if (client_fd == -1) {
-            perror("[SERVIDOR] Error al abrir el FIFO del cliente");
+
+    printf("[SERVIDOR] Escuchando en el puerto %d . . . \n", PORT);
+
+
+    while(1){
+        socklen_t addrlen = sizeof(struct sockaddr_in);
+        int client_fd = accept(server_fd, (struct sockaddr*)&client, &addrlen);
+        if (client_fd==-1){
+            perror("Error al aceptar la conexion");
             continue;
         }
-        
-        // Search for the record and measure time
-        struct timespec tstart, tend;
-        clock_gettime(CLOCK_MONOTONIC, &tstart);
-        char *search_result = find_record(isbn);
-        clock_gettime(CLOCK_MONOTONIC, &tend);
-        
-        // Calculate search time
-        long elapsed_ns = (tend.tv_sec - tstart.tv_sec) * 1000000000L + (tend.tv_nsec - tstart.tv_nsec);
-        double elapsed_ms = elapsed_ns / 1e6;
-        
-        // Prepare and send response
-        strncpy(resp.response, search_result, MAX_BUFFER - 1);
-        resp.response[MAX_BUFFER - 1] = '\0';
-        resp.search_time_ms = elapsed_ms;
-        
-        write(client_fd, &resp, sizeof(resp));
-        printf("[TIMING] Busqueda de '%s' tomo %.3f ms (%ld ns)\n", isbn, elapsed_ms, elapsed_ns);
-        
-        close(client_fd);
+
+        printf("[SERVIDOR] Cliente conectado\n");
+
+        //While que corre indefinidamente para recibir mensajes del cliente
+        while(1){
+            int bytes=recv(client_fd, buffer, sizeof(buffer)-1, 0);
+            if (bytes<=0){
+                printf("[SERVIDOR] Cliente desconectado\n");
+                close(client_fd);
+                break;
+            }
+
+            buffer[bytes]='\0'; 
+            printf("[CLIENTE] %s\n",buffer);
+
+
+            //Aqui llamamos la funcion que consulta la base de datos, recuperar la info y enviarla en send
+
+            // Cuenta el tiempo de busqueda
+            struct timespec tstart, tend;
+            clock_gettime(CLOCK_MONOTONIC, &tstart);
+            char *server_response = find_record(buffer);
+            clock_gettime(CLOCK_MONOTONIC, &tend);
+
+            long elapsed_ns = (tend.tv_sec - tstart.tv_sec) * 1000000000L + (tend.tv_nsec - tstart.tv_nsec);
+            double elapsed_ms = elapsed_ns / 1e6;
+            printf("[TIMING] Busqueda de '%s' tomo %.3f ms (%ld ns)\n", buffer, elapsed_ms, elapsed_ns);
+
+            send(client_fd, server_response, strlen(server_response), 0);
+        }
     }
-    
-    // Cleanup (though we should never reach here due to while(1))
-    close(server_fifo_fd);
-    close(dummy_fd);
-    unlink(server_fifo);
+
+    close(server_fd);
     return 0;
 }
