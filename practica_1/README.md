@@ -3,10 +3,11 @@
 Este proyecto implementa un sistema **cliente-servidor en C** para realizar consultas sobre una **base de datos de libros** previamente indexada mediante un algoritmo de *hashing*.
 
 * Indíce:
-     - [Estructura del proyecto](#🧩estructura-del-proyecto)
+     - [Estructura del proyecto](#jigsaw-estructura-del-proyecto)
+     - [Requisitos previos](#gear-requisitos-previos)
 ---
 
-## 🧩 Estructura del proyecto
+## :jigsaw: Estructura del proyecto
 
 ```
 search_client-server/
@@ -29,7 +30,7 @@ search_client-server/
 
 ---
 
-## ⚙️ Requisitos previos
+## :gear: Requisitos previos
 
 Antes de compilar y ejecutar el proyecto, asegúrate de tener:
 
