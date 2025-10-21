@@ -104,7 +104,7 @@ Esto procesará `books_unificado2.csv` y generará:
 
 - Si realizas modificaciones en los archivos fuente, puedes recompilar con:
   ```bash
-  make clean && make
+  make rebuild
   ```
 
 ---
@@ -115,3 +115,10 @@ Proyecto desarrollado en C como implementación práctica de:
 - Algoritmos de **hashing**
 - **Sistemas cliente-servidor TCP**
 - Manejo de **archivos binarios** e indexación
+Por:
+- Juan Diego Rozo Álvarez
+  jurozoa@unal.edu.co
+- Daniel Alonso Gracia Pina
+  dagraciap@unal.edu.co
+- Felipe Rojas Marin 
+  ferojasm@unal.edu.co
