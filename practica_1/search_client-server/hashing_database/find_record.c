@@ -112,7 +112,6 @@ char *find_record(const char *isbn) {
                 return not_found;
             }
 
-            //TODO: Usar esta funcion que formatea la salida para el proceso de busqueda
             snprintf(result, 1024,
                 "\n\nRegistro encontrado:\n\n"
                 "ID: %s\n"
@@ -120,7 +119,6 @@ char *find_record(const char *isbn) {
                 "Autor: %s\n"
                 "Editorial: %s\n"
                 "Año: %s\n"
-                "Descripción: %s\n"
                 "Páginas: %s\n"
                 "Rating: %s\n",
                 record.id,
@@ -128,7 +126,6 @@ char *find_record(const char *isbn) {
                 record.authors,
                 record.publisher,
                 record.publish_year,
-                record.description,
                 record.pages_number,
                 record.rating
             );
