@@ -7,6 +7,15 @@
 #define MAX_STR 256   
 #define MAX_DESC 1024 
 
+/**
+ * @brief Estructura para almacenar un registro de un libro
+ * 
+ * Esta estructura representa un registro de libro en la base de datos,
+ * incluyendo campos como ID, nombre, autor, editorial, año, descripción,
+ * número de páginas, rating y un puntero al siguiente registro en caso de
+ * colisiones en la tabla hash.
+ *  
+  */ 
 typedef struct {
     char id[10];
     char rating_dist_total[20];
@@ -33,7 +42,7 @@ typedef struct {
     
 } bookrecord;
 
-
+// Estructura para almacenar un bucket de la tabla hash
 typedef struct{
     long id;
     long first_offset;
@@ -136,17 +145,40 @@ int main(){
 
 
 
+/**
+ *  Extrae y hashea un ID desde una cadena de fila
+ * @row: puntero a una cadena terminada en '\0' que contiene una fila de la base de datos
+ * @index_id: desplazamiento en bytes o índice de carácter dentro de @row donde comienza el campo ID
+ *
+ * Analiza el campo ID que empieza en @index_id dentro de @row, convierte ese
+ * campo a un entero y devuelve un valor hasheado derivado del entero parseado,
+ * adecuado para usarse como índice en la base de datos hash.
+ *
+ * Devuelve un indice hasheado no negativo en caso de éxito.
+ *   Un valor negativo en caso de error (por ejemplo: @row es NULL, @index_id
+ *   está fuera de los límites de la cadena, o la subcadena en @index_id no puede
+ *   convertirse a un entero válido).
+ *
+ * Notas:
+ *   - La función no modifica el contenido de @row.
+ *   - El algoritmo de hash exacto y el rango de valores devueltos son internos a
+ *     esta función; los llamadores deben tratar el retorno como un índice hasheado
+ *     y no como el ID original.
+ *   - El llamador debe asegurar que @row es una cadena válida terminada en '\0'
+ *     y que @index_id apunta al inicio del texto del ID dentro de esa cadena.
+ */
 int get_id_hashed(char *row, int index_id){
     int column = 0;
     int id_hashed = -1;
 
     // Crear copia del row para no modificar el original
     char *temp = strdup(row);  // reserva memoria y copia row AQUI TUVE QUE HACER COPIA DE LA FILA porque al hacer strtok mas adelante, la modifica globalmente
-    if (temp == NULL) {
+    if (temp == NULL) { // Verificar si la copia fue exitosa
         perror("Error al copiar la cadena");
         exit(EXIT_FAILURE);
     }
 
+    
     char *token = strtok(temp, ",");
     while (token != NULL) {
         if (column == index_id) {
@@ -161,9 +193,22 @@ int get_id_hashed(char *row, int index_id){
     return id_hashed;
 }
 
-
-
-
+/**
+ * @brief Inicializa la tabla hash en un archivo
+ *
+ * Esta función crea un archivo llamado "hash_table.dat" y lo llena con
+ * entradas iniciales para una tabla hash de tamaño especificado. Cada
+ * entrada se inicializa con un ID correspondiente a su índice y un
+ * desplazamiento inicial de -1, indicando que no hay registros asociados.
+ *
+ * @param size El número de entradas (buckets) a crear en la tabla hash
+ *
+ * @note El archivo "hash_table.dat" se crea en el directorio de trabajo
+ *       actual del programa. Si el archivo ya existe, se sobrescribirá.
+ *
+ * @warning Si no se puede crear o escribir en el archivo, la función
+ *          imprimirá un mensaje de error y terminará el programa.
+ */
 void init_hash_table(int size){
     FILE *hash_table_file=fopen("hash_table.dat", "wb");
     if (hash_table_file==NULL){
@@ -183,7 +228,20 @@ void init_hash_table(int size){
 }
 
 
-
+/**
+ * @brief Mapea un registro de CSV a un registro binario
+ * 
+ * @param csv_record Registro CSV de entrada que se va a mapear
+ * @param bin_record Registro binario de salida donde se almacenarán los datos mapeados
+ * @param csv_record_len Longitud del registro CSV de entrada
+ * 
+ * @details Esta función convierte un registro en formato CSV a su representación binaria.
+ *          Procesa el registro CSV campo por campo, realizando las conversiones necesarias
+ *          y almacena los datos en el formato binario especificado.
+ * 
+ * @return void
+ * 
+ */
 bookrecord map_csv_record_to_bin(const char *row) {
     bookrecord record;
     memset(&record, 0, sizeof(record));

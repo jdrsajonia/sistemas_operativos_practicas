@@ -31,7 +31,7 @@ int main(){
     char buffer[1025];
 
 
-    // creacion del socket
+    // Creación del socket
     // ---------------------------------------------
     server_fd=socket(AF_INET, SOCK_STREAM, 0);
     if(server_fd==-1){
@@ -39,6 +39,7 @@ int main(){
         exit(-1);
     } 
     
+    // Manejo de cierre inesperado del socket
     int opt=2;
     setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
@@ -49,7 +50,7 @@ int main(){
     // ---------------------------------------------
 
 
-    //enlazar
+    // Enlace del socket usando bind 
     int r = bind(server_fd, (struct sockaddr *)&server, sizeof(struct sockaddr)); 
     if (r==-1){
         perror("Error al hacer el bind");
@@ -57,7 +58,7 @@ int main(){
         exit(-1);
     }
 
-    //escuchar conexiones
+    // Escuchar conexiones entrantes
     r=listen(server_fd,BACKLOG);
     if (r==-1){
         perror("Error al hacer Listen");
