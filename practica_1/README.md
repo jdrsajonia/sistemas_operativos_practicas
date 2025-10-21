@@ -1,10 +1,12 @@
-# 🔍 Search Client-Server
+# :mag: Search Client-Server
 
 Este proyecto implementa un sistema **cliente-servidor en C** para realizar consultas sobre una **base de datos de libros** previamente indexada mediante un algoritmo de *hashing*.
 
 * Indíce:
      - [Estructura del proyecto](#jigsaw-estructura-del-proyecto)
      - [Requisitos previos](#gear-requisitos-previos)
+     - [Preparación del dataset](#preparacion-del-dataset)
+
 ---
 
 ## :jigsaw: Estructura del proyecto
@@ -27,6 +29,7 @@ search_client-server/
 ├── Makefile
 └── README.md
 ```
+[Volver al principio](#mag-search-client-server)
 
 ---
 
@@ -40,10 +43,12 @@ Antes de compilar y ejecutar el proyecto, asegúrate de tener:
   (en Debian, puedes instalarlas con:  
   ```bash
   sudo apt install libssl-dev libxxhash-dev
+
+[Volver al principio](#mag-search-client-server)
   
 ---
 
-## 📥 Preparación del dataset
+## :inbox_tray: Preparación del dataset
 
 ⚠️ **IMPORTANTE:**  
 Debido a limitaciones de GitHub, el archivo `books_unificado2.csv` (≈1 GB) **no se incluye** en el repositorio.
