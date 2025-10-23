@@ -9,6 +9,7 @@
 
 
 #define PORT 8080
+#define ADDRESS "127.0.0.1"
 
 
 int main(){
@@ -30,7 +31,7 @@ int main(){
 
     cliente.sin_family=AF_INET;
     cliente.sin_port=htons(PORT);
-    cliente.sin_addr.s_addr=inet_addr("149.130.174.253");
+    cliente.sin_addr.s_addr=inet_addr(ADDRESS);
     memset(&(cliente.sin_zero), 0, 8);
 
     int r = connect(fd, (struct sockaddr *)&cliente, sizeof(struct sockaddr));
