@@ -120,14 +120,16 @@ char *find_record(const char *isbn) {
                 "Editorial: %s\n"
                 "Año: %s\n"
                 "Páginas: %s\n"
-                "Rating: %s\n",
+                "Rating: %s\n"
+                "ISBN: %s\n",
                 record.id,
                 record.name,
                 record.authors,
                 record.publisher,
                 record.publish_year,
                 record.pages_number,
-                record.rating
+                record.rating,
+                record.isbn
             );
 
             fclose(hash_file);
