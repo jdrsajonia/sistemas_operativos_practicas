@@ -1,0 +1,20 @@
+# Ignorar binarios y ejecutables
+*.o
+*.out
+*.exe
+server
+client
+search_client-server/hashing_database/hashdb
+
+# Ignorar archivos grandes de bases de datos
+search_client-server/hashing_database/database_indexed.dat
+search_client-server/hashing_database/hash_table.dat
+search_client-server/hashing_database/databases
+# Ignorar carpetas temporales
+*.zip
+*.tar
+*.tar.gz
+
+# Ignorar archivos del sistema
+.DS_Store
+Thumbs.db
